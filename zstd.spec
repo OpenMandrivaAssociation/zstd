@@ -1,16 +1,16 @@
-%define	major	1
-%define	libname	%mklibname %{name} %{major}
-%define	devname	%mklibname %{name} -d
-%define	sdevname	%mklibname %{name} -d -s
+%define major 1
+%define libname %mklibname %{name} %{major}
+%define devname %mklibname %{name} -d
+%define sdevname %mklibname %{name} -d -s
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
-Version:	1.1.0
+Version:	1.1.2
 Release:	1
 License:	BSD
 Group:		Archiving/Compression
-URL:		https://code.facebook.com/posts/1658392934479273/smaller-and-faster-data-compression-with-zstandard/
-Source0:	https://github.com/facebook/zstd/archive/v%{version}.tar.gz
+URL:		https://github.com/facebook/zstd
+Source0:	https://github.com/facebook/zstd/archive/%{name}-%{version}.tar.gz
 
 %description
 Compression algorithm and implementation designed to
@@ -20,15 +20,15 @@ breakthroughs, like Finite State Entropy, with a
 performance-first design — and then optimizes the
 implementation for the unique properties of modern CPUs.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Libraries for developing apps which will use zstd
 Group:		System/Libraries
 
 %description -n	%{libname}
 Library of zstd functions, for developing apps which will use the
-zstd library
+zstd library.
 
-%package -n	%{devname}
+%package -n %{devname}
 Summary:	Header files for developing apps which will use zstd
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
@@ -38,20 +38,24 @@ Provides:	%{name}-devel = %{version}-%{release}
 Header files of zstd functions, for developing apps which
 will use the zstd library.
 
-%package -n	%{sdevname}
+%package -n %{sdevname}
 Summary:	Static libraries for zstd
 Group:		Development/C
 Requires:	%{devname} = %{version}-%{release}
 
 %description -n	%{sdevname}
-Static library for zstd
+Static library for zstd.
 
 %prep
 %setup -q
 %apply_patches
 
 %build
+%setup_compile_flags
 %make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+
+# (tpg) build zlibwrapper
+%make zlibwrapper CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 
 %install
 %makeinstall_std PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
