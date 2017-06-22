@@ -6,11 +6,13 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.2.0
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
 Source0:	https://github.com/facebook/zstd/archive/v%{version}.tar.gz
+BuildRequires:	pkgconfig(liblz4)
+BuildRequires:	pkgconfig(liblzma)
 
 %description
 Compression algorithm and implementation designed to
@@ -53,12 +55,16 @@ Static library for zstd.
 %build
 %setup_compile_flags
 %make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
 
 # (tpg) build zlibwrapper
 # %make zlibwrapper CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 
 %install
 %makeinstall_std PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+
+install -D -m755 contrib/pzstd/pzstd %{buildroot}%{_bindir}/pzstd
+install -D -m644 programs/%{name}.1 %{buildroot}/%{_mandir}/man1/p%{name}.1
 
 %files
 %{_bindir}/*
