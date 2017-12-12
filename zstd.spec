@@ -3,10 +3,12 @@
 %define devname %mklibname %{name} -d
 %define sdevname %mklibname %{name} -d -s
 
+%global optflags %{optflags} -Ofast
+
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.3.2
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
