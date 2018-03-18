@@ -53,18 +53,18 @@ Static library for zstd.
 
 %prep
 %setup -q
-%apply_patches
+%autopatch -p1
 
 %build
 %setup_compile_flags
-%make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
-%make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
+%make_build CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make_build CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
 
 # (tpg) build zlibwrapper
 # %make zlibwrapper CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 
 %install
-%makeinstall_std PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make_install PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 
 install -D -m755 contrib/pzstd/pzstd %{buildroot}%{_bindir}/pzstd
 install -D -m644 programs/%{name}.1 %{buildroot}/%{_mandir}/man1/p%{name}.1
