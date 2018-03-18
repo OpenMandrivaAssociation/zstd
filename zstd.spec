@@ -15,6 +15,7 @@ URL:		https://github.com/facebook/zstd
 Source0:	https://github.com/facebook/zstd/archive/%{name}-%{version}.tar.gz
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(liblzma)
+BuildRequires:	pkgconfig(zlib)
 
 %description
 Compression algorithm and implementation designed to
