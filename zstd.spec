@@ -8,11 +8,12 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.3.4
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
 Source0:	https://github.com/facebook/zstd/archive/%{name}-%{version}.tar.gz
+Patch0:		zstd-1.3.4-multi-thread-default.patch
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(liblzma)
 BuildRequires:	pkgconfig(zlib)
