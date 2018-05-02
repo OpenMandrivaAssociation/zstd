@@ -58,7 +58,7 @@ Static library for zstd.
 
 %build
 %setup_compile_flags
-%make_CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 %make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
 
 # (tpg) build zlibwrapper
