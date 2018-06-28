@@ -7,8 +7,8 @@
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
-Version:	1.3.4
-Release:	2
+Version:	1.3.5
+Release:	1
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -58,7 +58,7 @@ Static library for zstd.
 
 %build
 %setup_compile_flags
-%make_CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 %make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
 
 # (tpg) build zlibwrapper
