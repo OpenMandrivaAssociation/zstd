@@ -3,12 +3,12 @@
 %define devname %mklibname %{name} -d
 %define sdevname %mklibname %{name} -d -s
 
-%global optflags %{optflags} -Ofast
+%global optflags %{optflags} -O3
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.3.8
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -53,19 +53,18 @@ Requires:	%{devname} = %{version}-%{release}
 Static library for zstd.
 
 %prep
-%setup -q
-%apply_patches
+%autosetup -p1
 
 %build
 %setup_compile_flags
-%make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
-%make CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
+%make_build CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make_build CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
 
 # (tpg) build zlibwrapper
 # %make zlibwrapper CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 
 %install
-%makeinstall_std PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make_install PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 
 install -D -m755 contrib/pzstd/pzstd %{buildroot}%{_bindir}/pzstd
 install -D -m644 programs/%{name}.1 %{buildroot}/%{_mandir}/man1/p%{name}.1
