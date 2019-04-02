@@ -20,6 +20,8 @@ Patch0:		zstd-1.3.4-multi-thread-default.patch
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(liblzma)
 BuildRequires:	pkgconfig(zlib)
+BuildRequires:	meson
+BuildRequires:	ninja
 
 %description
 Compression algorithm and implementation designed to
@@ -69,25 +71,31 @@ FCFLAGS_PGO="$CFLAGS_PGO"
 LDFLAGS_PGO="%{ldflags} -fprofile-instr-generate"
 export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
-%make_build CC=%{__cc} CFLAGS="${CFLAGS_PGO} -std=c11" LDFLAGS="${LDFLAGS_PGO}" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" check
+%define _vpath_builddir pgo
+cd build/meson
+CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson_test
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
 llvm-profdata merge --output=%{name}.profile *.profile.d
 rm -f *.profile.d
-make clean
-export CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)"
-export CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)"
-export LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)"
-%endif
+cd pgo
+ninja clean
+cd -
+rm -rf pgo
+%undefine _vpath_builddir
 
-%make_build CC=%{__cc} CFLAGS="${CFLAGS} -std=c11" LDFLAGS="${LDFLAGS}" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
-%make_build CC=%{__cc} CFLAGS="${CFLAGS} -std=c11" LDFLAGS="${LDFLAGS}" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
+CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+%endif
+%meson -Dbuild_programs=true -Dbuild_contrib=true -Dzlib=enabled -Dlzma=enabled -Dlz4=enabled
+%meson_build
 
 # (tpg) build zlibwrapper
 # %make zlibwrapper CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
 
 %install
-%make_install PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%meson_install
 
 install -D -m755 contrib/pzstd/pzstd %{buildroot}%{_bindir}/pzstd
 install -D -m644 programs/%{name}.1 %{buildroot}/%{_mandir}/man1/p%{name}.1
