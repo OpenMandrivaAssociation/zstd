@@ -75,7 +75,6 @@ export LD_LIBRARY_PATH="$(pwd)"
 %define _vpath_builddir pgo
 cd build/meson
 mkdir pgo
-<<<<<<< HEAD
 CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson  -Dbuild_programs=true -Dbuild_contrib=true -Dzlib=enabled -Dlzma=enabled -Dlz4=enabled
 %meson_build
 
@@ -86,9 +85,6 @@ CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS
 ./pgo/programs/zstd -b7i2
 ./pgo/programs/zstd -b5
 
-=======
-CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson_test
->>>>>>> 25eae9763a0d30fd381d2c116ce10c099eff4367
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
 llvm-profdata merge --output=%{name}.profile *.profile.d
