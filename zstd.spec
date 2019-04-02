@@ -5,10 +5,13 @@
 
 %global optflags %{optflags} -O3
 
+# (tpg) enable PGO build
+%bcond_without pgo
+
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.3.8
-Release:	2
+Release:	3
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -57,8 +60,28 @@ Static library for zstd.
 
 %build
 %setup_compile_flags
-%make_build CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
-%make_build CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
+
+%if %{with pgo}
+CFLAGS_PGO="%{optflags} -fprofile-instr-generate"
+CXXFLAGS_PGO="%{optflags} -fprofile-instr-generate"
+FFLAGS_PGO="$CFLAGS_PGO"
+FCFLAGS_PGO="$CFLAGS_PGO"
+LDFLAGS_PGO="%{ldflags} -fprofile-instr-generate"
+export LLVM_PROFILE_FILE=%{name}-%p.profile.d
+export LD_LIBRARY_PATH="$(pwd)"
+%make_build CC=%{__cc} CFLAGS="${CFLAGS_PGO} -std=c11" LDFLAGS="${LDFLAGS_PGO}" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" check
+unset LD_LIBRARY_PATH
+unset LLVM_PROFILE_FILE
+llvm-profdata merge --output=%{name}.profile *.profile.d
+rm -f *.profile.d
+make clean
+export CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)"
+export CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)"
+export LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)"
+%endif
+
+%make_build CC=%{__cc} CFLAGS="${CFLAGS} -std=c11" LDFLAGS="${LDFLAGS}" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
+%make_build CC=%{__cc} CFLAGS="${CFLAGS} -std=c11" LDFLAGS="${LDFLAGS}" PREFIX="%{_prefix}" LIBDIR="%{_libdir}" -C 'contrib/pzstd'
 
 # (tpg) build zlibwrapper
 # %make zlibwrapper CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
