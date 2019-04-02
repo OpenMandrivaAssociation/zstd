@@ -73,6 +73,7 @@ export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
 %define _vpath_builddir pgo
 cd build/meson
+mkdir pgo
 CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson_test
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
