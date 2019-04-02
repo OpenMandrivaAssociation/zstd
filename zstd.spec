@@ -1,7 +1,6 @@
 %define major 1
 %define libname %mklibname %{name} %{major}
 %define devname %mklibname %{name} -d
-%define sdevname %mklibname %{name} -d -s
 
 %global optflags %{optflags} -O3
 
@@ -35,7 +34,7 @@ implementation for the unique properties of modern CPUs.
 Summary:	Libraries for developing apps which will use zstd
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 Library of zstd functions, for developing apps which will use the
 zstd library.
 
@@ -44,8 +43,10 @@ Summary:	Header files for developing apps which will use zstd
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
+Obsoletes:	%{mklibname %{name} -d -s} < 1.3.8-3
+Provides:	%{mklibname %{name} -d -s} = 1.3.8-3
 
-%description -n	%{devname}
+%description -n %{devname}
 Header files of zstd functions, for developing apps which
 will use the zstd library.
 
@@ -73,7 +74,17 @@ export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
 %define _vpath_builddir pgo
 cd build/meson
-CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson_test
+mkdir pgo
+CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson  -Dbuild_programs=true -Dbuild_contrib=true -Dzlib=enabled -Dlzma=enabled -Dlz4=enabled
+%meson_build
+
+./pgo/programs/zstd -b19i1
+./pgo/programs/zstd -b16i1
+./pgo/programs/zstd -b9i2
+./pgo/programs/zstd -b
+./pgo/programs/zstd -b7i2
+./pgo/programs/zstd -b5
+
 unset LD_LIBRARY_PATH
 unset LLVM_PROFILE_FILE
 llvm-profdata merge --output=%{name}.profile *.profile.d
@@ -91,14 +102,9 @@ LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 %meson -Dbuild_programs=true -Dbuild_contrib=true -Dzlib=enabled -Dlzma=enabled -Dlz4=enabled
 %meson_build
 
-# (tpg) build zlibwrapper
-# %make zlibwrapper CC=%{__cc} CFLAGS="%{optflags} -std=c11" PREFIX="%{_prefix}" LIBDIR="%{_libdir}"
-
 %install
+cd build/meson
 %meson_install
-
-install -D -m755 contrib/pzstd/pzstd %{buildroot}%{_bindir}/pzstd
-install -D -m644 programs/%{name}.1 %{buildroot}/%{_mandir}/man1/p%{name}.1
 
 %files
 %{_bindir}/*
@@ -111,6 +117,3 @@ install -D -m644 programs/%{name}.1 %{buildroot}/%{_mandir}/man1/p%{name}.1
 %{_libdir}/libzstd.so
 %{_libdir}/pkgconfig/*
 %{_includedir}/*.h
-
-%files -n %{sdevname}
-%{_libdir}/libzstd.a
