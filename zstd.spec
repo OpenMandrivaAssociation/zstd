@@ -5,7 +5,9 @@
 %global optflags %{optflags} -O3
 
 # (tpg) enable PGO build
+%ifnarch %{ix86} riscv64
 %bcond_without pgo
+%endif
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
