@@ -77,7 +77,7 @@ export LD_LIBRARY_PATH="$(pwd)"
 %define _vpath_builddir pgo
 cd build/meson
 mkdir pgo
-CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson  -Dbuild_programs=true -Dbuild_contrib=true -Dzlib=enabled -Dlzma=enabled -Dlz4=enabled
+CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %meson -Dbuild_programs=true -Dbuild_contrib=true -Dzlib=enabled -Dlzma=enabled -Dlz4=enabled
 %meson_build
 
 ./pgo/programs/zstd -b19i1
@@ -100,6 +100,8 @@ rm -rf pgo
 CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
 LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+%else
+cd build/meson
 %endif
 %meson -Dbuild_programs=true -Dbuild_contrib=true -Dzlib=enabled -Dlzma=enabled -Dlz4=enabled
 %meson_build
