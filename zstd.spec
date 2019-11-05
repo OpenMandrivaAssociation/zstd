@@ -13,7 +13,7 @@
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
-Version:	1.4.3
+Version:	1.4.4
 Release:	1
 License:	BSD
 Group:		Archiving/Compression
