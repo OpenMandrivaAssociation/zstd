@@ -16,7 +16,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.4.4
-Release:	2
+Release:	3
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -66,6 +66,9 @@ Static library for zstd.
 
 %prep
 %autosetup -p1
+# Get rid of -L/usr/lib insanity
+sed -i -e 's,-L\${libdir} ,,g' lib/*.pc.in
+sed -i -e '/^Cflags:/d' lib/*.pc.in
 
 %build
 %setup_compile_flags
