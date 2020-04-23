@@ -16,7 +16,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.4.4
-Release:	3
+Release:	4
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -49,8 +49,6 @@ Summary:	Header files for developing apps which will use zstd
 Group:		Development/C
 Requires:	%{libname} = %{version}-%{release}
 Provides:	%{name}-devel = %{version}-%{release}
-Obsoletes:	%{mklibname %{name} -d -s} < 1.3.8-3
-Provides:	%{mklibname %{name} -d -s} = 1.3.8-3
 
 %description -n %{devname}
 Header files of zstd functions, for developing apps which
