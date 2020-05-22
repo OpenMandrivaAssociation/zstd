@@ -1,8 +1,8 @@
-diff -Naur zstd-1.3.8/programs/zstdcli.c zstd-1.3.8/programs/new-zstdcli.c
---- zstd-1.3.8/programs/zstdcli.c   2018-12-27 13:42:44.000000000 +0100
-+++ zstd-1.3.8/programs/new-zstdcli.c       2019-01-01 04:30:50.000000000 +0100
-@@ -576,7 +576,7 @@
-     cLevel = init_cLevel();
+diff -Naur zstd-1.4.5/programs/zstdcli.c zstd-1.4.5.tpg/programs/zstdcli.c
+--- zstd-1.4.5/programs/zstdcli.c	2020-05-22 05:04:00.000000000 +0000
++++ zstd-1.4.5.tpg/programs/zstdcli.c	2020-05-22 08:33:46.031001998 +0000
+@@ -695,7 +695,7 @@
+     if ((filenames==NULL) || (file_of_names==NULL)) { DISPLAY("zstd: allocation error \n"); exit(1); }
      programName = lastNameFromPath(programName);
  #ifdef ZSTD_MULTITHREAD
 -    nbWorkers = 1;
@@ -10,4 +10,3 @@ diff -Naur zstd-1.3.8/programs/zstdcli.c zstd-1.3.8/programs/new-zstdcli.c
  #endif
  
      /* preset behaviors */
-
