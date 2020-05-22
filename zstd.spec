@@ -133,6 +133,8 @@ install -m 755 build/contrib/pzstd/pzstd %{buildroot}%{_bindir}/
 %{_libdir}/libzstd.so
 %{_libdir}/pkgconfig/*
 %{_includedir}/*.h
+%dir %{_libdir}/cmake/zstd
+%{_libdir}/cmake/zstd/*.cmake
 %doc %{_docdir}/zstd
 
 %files -n %{sdevname}
