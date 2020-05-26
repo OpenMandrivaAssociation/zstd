@@ -1,8 +1,18 @@
+# zstd is used by mesa, mesa is used by wine
+%ifarch %{x86_64}
+%bcond_without compat32
+%else
+%bcond_with compat32
+%endif
+
 %define major 1
 %define libname %mklibname %{name} %{major}
 %define devname %mklibname %{name} -d
 # static libraries are used by qemu. Please don't disable them.
 %define sdevname %mklibname %{name} -d -s
+%define lib32name lib%{name}%{major}
+%define dev32name lib%{name}-devel
+%define sdev32name lib%{name}-static-devel
 
 %global optflags %{optflags} -Ofast
 
@@ -16,7 +26,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.4.5
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -27,6 +37,11 @@ BuildRequires:	pkgconfig(liblzma)
 BuildRequires:	pkgconfig(zlib)
 BuildRequires:	cmake
 BuildRequires:	ninja
+%if %{with compat32}
+BuildRequires:	devel(liblz4)
+BuildRequires:	devel(liblzma)
+BuildRequires:	devel(libz)
+%endif
 
 %description
 Compression algorithm and implementation designed to
@@ -62,6 +77,34 @@ Requires:	%{devname} = %{version}-%{release}
 %description -n	%{sdevname}
 Static library for zstd.
 
+%if %{with compat32}
+%package -n %{lib32name}
+Summary:	Libraries for developing apps which will use zstd (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32name}
+Library of zstd functions, for developing apps which will use the
+zstd library.
+
+%package -n %{dev32name}
+Summary:	Header files for developing apps which will use zstd (32-bit)
+Group:		Development/C
+Requires:	%{devname} = %{version}-%{release}
+Requires:	%{lib32name} = %{version}-%{release}
+
+%description -n %{dev32name}
+Header files of zstd functions, for developing apps which
+will use the zstd library.
+
+%package -n %{sdev32name}
+Summary:	Static libraries for zstd (32-bit)
+Group:		Development/C
+Requires:	%{dev32name} = %{version}-%{release}
+
+%description -n	%{sdev32name}
+Static library for zstd.
+%endif
+
 %prep
 %autosetup -p1
 # Get rid of -L/usr/lib insanity
@@ -70,6 +113,16 @@ sed -i -e '/^Cflags:/d' lib/*.pc.in
 
 %build
 %setup_compile_flags
+
+%if %{with compat32}
+cd build/cmake
+%cmake32 \
+	-DZSTD_BUILD_CONTRIB:BOOL=ON -DZSTD_LEGACY_SUPPORT:BOOL=ON -DZSTD_LZ4_SUPPORT:BOOL=ON -DZSTD_LZMA_SUPPORT:BOOL=ON -DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON -DZSTD_ZLIB_SUPPORT:BOOL=ON \
+	-G Ninja
+cd ..
+%ninja_build -C build32
+cd ../..
+%endif
 
 %if %{with pgo}
 CFLAGS_PGO="%{optflags} -fprofile-instr-generate"
@@ -119,6 +172,9 @@ cd build/cmake
 
 %install
 cd build/cmake
+%if %{with compat32}
+%ninja_install -C build32
+%endif
 %ninja_install -C build
 install -m 755 build/contrib/pzstd/pzstd %{buildroot}%{_bindir}/
 
@@ -139,3 +195,17 @@ install -m 755 build/contrib/pzstd/pzstd %{buildroot}%{_bindir}/
 
 %files -n %{sdevname}
 %{_libdir}/libzstd.a
+
+%if %{with compat32}
+%files -n %{lib32name}
+%{_prefix}/lib/libzstd.so.%{major}*
+
+%files -n %{dev32name}
+%{_prefix}/lib/libzstd.so
+%{_prefix}/lib/pkgconfig/*
+%dir %{_prefix}/lib/cmake/zstd
+%{_prefix}/lib/cmake/zstd/*.cmake
+
+%files -n %{sdev32name}
+%{_prefix}/lib/libzstd.a
+%endif
