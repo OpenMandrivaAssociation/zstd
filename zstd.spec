@@ -26,7 +26,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.4.5
-Release:	2
+Release:	3
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
