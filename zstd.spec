@@ -1,5 +1,5 @@
 # (tpg) reduce bloat by excluding cmake requires on devel packages
-%global __requires_exclude ^cmake
+%global __requires_exclude ^cmake.*$
 
 # zstd is used by mesa, mesa is used by wine
 %ifarch %{x86_64}
