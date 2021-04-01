@@ -1,3 +1,6 @@
+# (tpg) reduce bloat by excluding cmake requires on devel packages
+%global __requires_exclude ^cmake
+
 # zstd is used by mesa, mesa is used by wine
 %ifarch %{x86_64}
 %bcond_without compat32
@@ -26,7 +29,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.4.9
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
