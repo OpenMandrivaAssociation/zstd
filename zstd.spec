@@ -21,7 +21,7 @@
 
 # (tpg) enable PGO build
 %ifnarch %{ix86} riscv64
-%bcond_without pgo
+%bcond_with pgo
 %else
 %bcond_with pgo
 %endif
@@ -29,7 +29,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.5.0
-Release:	2
+Release:	3
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
