@@ -20,16 +20,12 @@
 %global optflags %{optflags} -O3
 
 # (tpg) enable PGO build
-%ifnarch %{ix86} riscv64
-%bcond_with pgo
-%else
-%bcond_with pgo
-%endif
+%bcond_without pgo
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.5.0
-Release:	3
+Release:	4
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -127,16 +123,23 @@ cd ../..
 %endif
 
 %if %{with pgo}
-CFLAGS_PGO="%{optflags} -fprofile-instr-generate"
-CXXFLAGS_PGO="%{optflags} -fprofile-instr-generate"
-FFLAGS_PGO="$CFLAGS_PGO"
-FCFLAGS_PGO="$CFLAGS_PGO"
-LDFLAGS_PGO="%{ldflags} -fprofile-instr-generate"
 cd build/cmake
-CFLAGS="${CFLAGS_PGO}" CXXFLAGS="${CXXFLAGS_PGO}" FFLAGS="${FFLAGS_PGO}" FCFLAGS="${FCFLAGS_PGO}" LDFLAGS="${LDFLAGS_PGO}" CC="%{__cc}" %cmake -DZSTD_BUILD_CONTRIB:BOOL=ON -DZSTD_LEGACY_SUPPORT:BOOL=ON -DZSTD_LZ4_SUPPORT:BOOL=ON -DZSTD_LZMA_SUPPORT:BOOL=ON -DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON -DZSTD_ZLIB_SUPPORT:BOOL=ON -DZSTD_MULTITHREAD_SUPPORT:BOOL=ON -G Ninja
+CFLAGS="%{optflags} -fprofile-generate" \
+CXXFLAGS="%{optflags} -fprofile-generate" \
+LDFLAGS="%{build_ldflags} -fprofile-generate" \
+%cmake \
+	-DZSTD_BUILD_CONTRIB:BOOL=ON \
+	-DZSTD_LEGACY_SUPPORT:BOOL=ON \
+	-DZSTD_LZ4_SUPPORT:BOOL=ON \
+	-DZSTD_LZMA_SUPPORT:BOOL=ON \
+	-DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON \
+	-DZSTD_ZLIB_SUPPORT:BOOL=ON \
+	-DZSTD_MULTITHREAD_SUPPORT:BOOL=ON \
+	-G Ninja
+
 cd ..
 export LD_LIBRARY_PATH="$(pwd)/build/lib"
-export LLVM_PROFILE_FILE=%{name}-%p.profile.d
+
 %ninja_build -C build
 
 cp %{S:0} .
@@ -158,18 +161,27 @@ gunzip *.tar.gz
 rm *.tar
 
 unset LD_LIBRARY_PATH
-unset LLVM_PROFILE_FILE
-llvm-profdata merge --output=%{name}.profile *.profile.d
+llvm-profdata merge --output=%{name}-llvm.profdata *.profraw
+PROFDATA="$(realpath %{name}-llvm.profdata)"
 rm -f *.profile.d
 rm -rf build
 
-CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$PROFDATA" \
+LDFLAGS="%{build_ldflags} -fprofile-instr-use=$PROFDATA" \
 %else
 cd build/cmake
 %endif
-%cmake -DZSTD_BUILD_CONTRIB:BOOL=ON -DZSTD_LEGACY_SUPPORT:BOOL=ON -DZSTD_LZ4_SUPPORT:BOOL=ON -DZSTD_LZMA_SUPPORT:BOOL=ON -DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON -DZSTD_ZLIB_SUPPORT:BOOL=ON -DZSTD_MULTITHREAD_SUPPORT:BOOL=ON -G Ninja
+%cmake \
+	-DZSTD_BUILD_CONTRIB:BOOL=ON \
+	-DZSTD_LEGACY_SUPPORT:BOOL=ON \
+	-DZSTD_LZ4_SUPPORT:BOOL=ON \
+	-DZSTD_LZMA_SUPPORT:BOOL=ON \
+	-DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON \
+	-DZSTD_ZLIB_SUPPORT:BOOL=ON \
+	-DZSTD_MULTITHREAD_SUPPORT:BOOL=ON \
+	-G Ninja
+
 %ninja_build
 
 %install
@@ -182,7 +194,7 @@ install -m 755 build/contrib/pzstd/pzstd %{buildroot}%{_bindir}/
 
 %files
 %{_bindir}/*
-%{_mandir}/man1/*
+%doc %{_mandir}/man1/*
 
 %files -n %{libname}
 %{_libdir}/libzstd.so.%{major}*
