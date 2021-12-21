@@ -24,8 +24,8 @@
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
-Version:	1.5.0
-Release:	4
+Version:	1.5.1
+Release:	1
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -115,7 +115,7 @@ sed -i -e '/^Cflags:/d' lib/*.pc.in
 %if %{with compat32}
 cd build/cmake
 %cmake32 \
-	-DZSTD_BUILD_CONTRIB:BOOL=OFF -DZSTD_LEGACY_SUPPORT:BOOL=ON -DZSTD_LZ4_SUPPORT:BOOL=ON -DZSTD_LZMA_SUPPORT:BOOL=ON -DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON -DZSTD_ZLIB_SUPPORT:BOOL=ON -DZSTD_MULTITHREAD_SUPPORT:BOOL=ON \
+	-DZSTD_BUILD_CONTRIB:BOOL=OFF -DZSTD_LEGACY_SUPPORT:BOOL=ON -DZSTD_LZ4_SUPPORT:BOOL=ON -DZSTD_LZMA_SUPPORT:BOOL=ON -DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON -DZSTD_ZLIB_SUPPORT:BOOL=ON -DZSTD_MULTITHREAD_SUPPORT:BOOL=ON -DCMAKE_ASM_FLAGS_RELWITHDEBINFO="%{optflags} -m32" \
 	-G Ninja
 cd ..
 %ninja_build -C build32
