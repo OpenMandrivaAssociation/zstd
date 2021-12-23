@@ -25,7 +25,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.5.1
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -161,7 +161,7 @@ gunzip *.tar.gz
 rm *.tar
 
 unset LD_LIBRARY_PATH
-llvm-profdata merge --output=%{name}-llvm.profdata *.profraw
+llvm-profdata merge --output=%{name}-llvm.profdata $(find . -name "*.profraw" -type f)
 PROFDATA="$(realpath %{name}-llvm.profdata)"
 rm -f *.profile.d
 rm -rf build
