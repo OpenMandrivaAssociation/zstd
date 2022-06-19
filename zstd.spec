@@ -25,7 +25,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.5.2
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -108,6 +108,10 @@ Static library for zstd.
 # Get rid of -L/usr/lib insanity
 sed -i -e 's,-L\${libdir} ,,g' lib/*.pc.in
 sed -i -e '/^Cflags:/d' lib/*.pc.in
+
+# Don't use obsolete standards
+# https://github.com/facebook/zstd/issues/3163
+sed -i -e 's,c99,gnu2a,g' build/cmake/CMakeModules/AddZstdCompilationFlags.cmake
 
 %build
 %set_build_flags
