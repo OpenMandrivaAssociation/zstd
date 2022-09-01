@@ -1,6 +1,3 @@
-# (tpg) reduce bloat by excluding cmake requires on devel packages
-%global __requires_exclude ^cmake.*$
-
 # zstd is used by mesa, mesa is used by wine
 %ifarch %{x86_64}
 %bcond_without compat32
@@ -25,7 +22,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.5.2
-Release:	2
+Release:	3
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -128,9 +125,9 @@ cd ../..
 
 %if %{with pgo}
 cd build/cmake
-CFLAGS="%{optflags} -fprofile-generate" \
-CXXFLAGS="%{optflags} -fprofile-generate" \
-LDFLAGS="%{build_ldflags} -fprofile-generate" \
+CFLAGS="%{optflags} -fprofile-generate -mllvm -vp-counters-per-site=100" \
+CXXFLAGS="%{optflags} -fprofile-generate -mllvm -vp-counters-per-site=100" \
+LDFLAGS="%{build_ldflags} -fprofile-generate -mllvm -vp-counters-per-site=100" \
 %cmake \
 	-DZSTD_BUILD_CONTRIB:BOOL=ON \
 	-DZSTD_LEGACY_SUPPORT:BOOL=ON \
