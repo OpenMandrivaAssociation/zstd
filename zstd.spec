@@ -16,13 +16,17 @@
 
 %global optflags %{optflags} -O3
 
+# (tpg) use LLVM/polly for polyhedra optimization and automatic vector code generation
+%define pollyflags -mllvm -polly -mllvm -polly-run-dce -mllvm -polly-run-inliner -mllvm -polly-isl-arg=--no-schedule-serialize-sccs -mllvm -polly-ast-use-context -mllvm -polly-detect-keep-going -mllvm -polly-vectorizer=stripmine
+# "-mllvm -polly-invariant-load-hoisting" removed for now because of https://github.com/llvm/llvm-project/issues/57413
+
 # (tpg) enable PGO build
 %bcond_without pgo
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.5.2
-Release:	3
+Release:	4
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -125,8 +129,8 @@ cd ../..
 
 %if %{with pgo}
 cd build/cmake
-CFLAGS="%{optflags} -fprofile-generate -mllvm -vp-counters-per-site=100" \
-CXXFLAGS="%{optflags} -fprofile-generate -mllvm -vp-counters-per-site=100" \
+CFLAGS="%{optflags} -fprofile-generate -mllvm -vp-counters-per-site=100 %{pollyflags}" \
+CXXFLAGS="%{optflags} -fprofile-generate -mllvm -vp-counters-per-site=100 %{pollyflags}" \
 LDFLAGS="%{build_ldflags} -fprofile-generate -mllvm -vp-counters-per-site=100" \
 %cmake \
 	-DZSTD_BUILD_CONTRIB:BOOL=ON \
@@ -167,8 +171,8 @@ PROFDATA="$(realpath %{name}-llvm.profdata)"
 rm -f *.profile.d
 rm -rf build
 
-CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$PROFDATA" \
+CFLAGS="%{optflags} -fprofile-use=$PROFDATA %{pollyflags}" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$PROFDATA %{pollyflags}" \
 LDFLAGS="%{build_ldflags} -fprofile-instr-use=$PROFDATA" \
 %else
 cd build/cmake
