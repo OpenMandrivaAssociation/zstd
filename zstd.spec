@@ -25,7 +25,7 @@
 Summary:	Extremely powerful file compression utility
 Name:		zstd
 Version:	1.5.4
-Release:	1
+Release:	2
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
@@ -171,8 +171,8 @@ rm -f *.profile.d
 rm -rf build
 
 CFLAGS="%{optflags} -fprofile-use=$PROFDATA %{pollyflags}" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$PROFDATA %{pollyflags}" \
-LDFLAGS="%{build_ldflags} -fprofile-instr-use=$PROFDATA" \
+CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA %{pollyflags}" \
+LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 %else
 cd build/cmake
 %endif
