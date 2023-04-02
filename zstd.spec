@@ -6,11 +6,13 @@
 %endif
 
 %define major 1
-%define libname %mklibname %{name} %{major}
+%define oldlibname %mklibname %{name} 1
+%define libname %mklibname %{name}
 %define devname %mklibname %{name} -d
 # static libraries are used by qemu. Please don't disable them.
 %define sdevname %mklibname %{name} -d -s
-%define lib32name lib%{name}%{major}
+%define oldlib32name lib%{name}1
+%define lib32name lib%{name}
 %define dev32name lib%{name}-devel
 %define sdev32name lib%{name}-static-devel
 
@@ -20,7 +22,11 @@
 %define pollyflags -mllvm -polly -mllvm -polly-position=early -mllvm -polly-parallel=true -fopenmp -fopenmp-version=50 -mllvm -polly-dependences-computeout=5000000 -mllvm -polly-detect-profitability-min-per-loop-insts=40 -mllvm -polly-tiling=true -mllvm -polly-prevect-width=256 -mllvm -polly-vectorizer=stripmine -mllvm -polly-omp-backend=LLVM -mllvm -polly-num-threads=0 -mllvm -polly-scheduling=dynamic -mllvm -polly-scheduling-chunksize=1 -mllvm -polly-invariant-load-hoisting -mllvm -polly-loopfusion-greedy -mllvm -polly-run-inliner -mllvm -polly-run-dce -mllvm -polly-enable-delicm=true -mllvm -extra-vectorizer-passes -mllvm -enable-cond-stores-vec -mllvm -slp-vectorize-hor-store -mllvm -enable-loopinterchange -mllvm -enable-loop-distribute -mllvm -enable-unroll-and-jam -mllvm -enable-loop-flatten -mllvm -interleave-small-loop-scalar-reduction -mllvm -unroll-runtime-multi-exit -mllvm -aggressive-ext-opt
 
 # (tpg) enable PGO build
+%if %{cross_compiling}
+%bcond_with pgo
+%else
 %bcond_without pgo
+%endif
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
@@ -53,6 +59,7 @@ implementation for the unique properties of modern CPUs.
 %package -n %{libname}
 Summary:	Libraries for developing apps which will use zstd
 Group:		System/Libraries
+%rename %{oldlibname}
 
 %description -n %{libname}
 Library of zstd functions, for developing apps which will use the
@@ -80,6 +87,7 @@ Static library for zstd.
 %package -n %{lib32name}
 Summary:	Libraries for developing apps which will use zstd (32-bit)
 Group:		System/Libraries
+%rename %{oldlib32name}
 
 %description -n %{lib32name}
 Library of zstd functions, for developing apps which will use the
@@ -178,7 +186,11 @@ LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 cd build/cmake
 %endif
 %cmake \
+%if %{cross_compiling}
+	-DZSTD_BUILD_CONTRIB:BOOL=OFF \
+%else
 	-DZSTD_BUILD_CONTRIB:BOOL=ON \
+%endif
 	-DZSTD_LEGACY_SUPPORT:BOOL=ON \
 	-DZSTD_LZ4_SUPPORT:BOOL=ON \
 	-DZSTD_LZMA_SUPPORT:BOOL=ON \
@@ -195,7 +207,9 @@ cd build/cmake
 %ninja_install -C build32
 %endif
 %ninja_install -C build
+%if ! %{cross_compiling}
 install -m 755 build/contrib/pzstd/pzstd %{buildroot}%{_bindir}/
+%endif
 
 # (tpg) strip LTO from "LLVM IR bitcode" files
 check_convert_bitcode() {
@@ -240,7 +254,9 @@ done
 %{_includedir}/*.h
 %dir %{_libdir}/cmake/zstd
 %{_libdir}/cmake/zstd/*.cmake
+%if ! %{cross_compiling}
 %doc %{_docdir}/zstd
+%endif
 
 %files -n %{sdevname}
 %{_libdir}/libzstd.a
