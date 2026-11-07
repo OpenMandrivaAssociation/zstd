@@ -49,6 +49,7 @@ BuildRequires:	ninja
 BuildRequires:	devel(liblz4)
 BuildRequires:	devel(liblzma)
 BuildRequires:	devel(libz)
+BuildRequires:	lib64gcc-devel
 %endif
 
 %description
@@ -130,12 +131,23 @@ sed -i -e 's,c99,gnu2a,g' build/cmake/CMakeModules/AddZstdCompilationFlags.cmake
 
 %if %{with compat32}
 cd build/cmake
+# Clang 23's -m32 driver links i386 compiler-rt, which the build chroot
+# does not ship. The 32-bit libgcc is enough.
+_cflags="$CFLAGS"
+_cxxflags="$CXXFLAGS"
+_ldflags="$LDFLAGS"
+CFLAGS="$CFLAGS -rtlib=libgcc --unwindlib=libgcc"
+CXXFLAGS="$CXXFLAGS -rtlib=libgcc --unwindlib=libgcc"
+LDFLAGS="$LDFLAGS -rtlib=libgcc --unwindlib=libgcc"
 %cmake32 \
 	-DZSTD_BUILD_CONTRIB:BOOL=OFF -DZSTD_LEGACY_SUPPORT:BOOL=ON -DZSTD_LZ4_SUPPORT:BOOL=ON -DZSTD_LZMA_SUPPORT:BOOL=ON -DZSTD_PROGRAMS_LINK_SHARED:BOOL=ON -DZSTD_ZLIB_SUPPORT:BOOL=ON -DZSTD_MULTITHREAD_SUPPORT:BOOL=ON -DCMAKE_ASM_FLAGS_RELWITHDEBINFO="%{optflags} -m32" \
 	-G Ninja
 cd ..
 %ninja_build -C build32
 cd ../..
+CFLAGS="$_cflags"
+CXXFLAGS="$_cxxflags"
+LDFLAGS="$_ldflags"
 %endif
 
 %if %{with pgo}
