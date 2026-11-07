@@ -1,0 +1,18 @@
+lz4 1.11 removed the unprefixed contentChecksum_t typedef that
+LZ4F_ENABLE_OBSOLETE_ENUMS used to provide. The prefixed type has
+been the real name since lz4 1.7.
+
+--- a/programs/fileio.c
++++ b/programs/fileio.c
+@@ -1421,7 +1421,11 @@ FIO_compressLz4Frame(cRess_t* ress,
+     prefs.compressionLevel = compressionLevel;
+     prefs.frameInfo.blockMode = LZ4F_blockLinked;
+     prefs.frameInfo.blockSizeID = LZ4F_max64KB;
++#if LZ4_VERSION_NUMBER >= 11100
++    prefs.frameInfo.contentChecksumFlag = (LZ4F_contentChecksum_t)checksumFlag;
++#else
+     prefs.frameInfo.contentChecksumFlag = (contentChecksum_t)checksumFlag;
++#endif
+ #if LZ4_VERSION_NUMBER >= 10600
+     prefs.frameInfo.contentSize = (srcFileSize==UTIL_FILESIZE_UNKNOWN) ? 0 : srcFileSize;
+ #endif
