@@ -31,14 +31,12 @@
 
 Summary:	Extremely powerful file compression utility
 Name:		zstd
-Version:	1.5.7
-Release:	2
+Version:	1.6.0
+Release:	1
 License:	BSD
 Group:		Archiving/Compression
 URL:		https://github.com/facebook/zstd
 Source0:	https://github.com/facebook/zstd/archive/v%{version}/%{name}-%{version}.tar.gz
-# lz4 1.11 dropped the obsolete unprefixed contentChecksum_t typedef
-Patch0:		zstd-1.5.7-lz4-1.11.patch
 Requires:	%{libname} = %{EVRD}
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(liblzma)
